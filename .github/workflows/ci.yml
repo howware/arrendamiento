@@ -14,18 +14,18 @@ jobs:
         python: ["3.9", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Memory (long-term-memory-for-AI)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: howware/long-term-memory-for-AI
           path: long-term-memory-for-AI
       - name: Adapter mxbank (only to compare the copy of its common records)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: howware/mx-bank-statement-reader
           path: mx-bank-statement-reader
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: Private-data guard (every versioned file)
