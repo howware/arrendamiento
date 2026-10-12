@@ -53,7 +53,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mxbank_records  # noqa: E402  (verbatim copy from mxbank: the common form of a statement in the memory)
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 HERE = Path(__file__).resolve().parent
 SEED = HERE / "seed.json"
 MIN_MEMORY = (0, 4, 0)
@@ -403,7 +403,9 @@ class Book:
             row = {"month": m, "rent_cents": expected, "rent": money(expected), "paid_cents": paid,
                    "paid": money(paid), "balance_cents": expected - paid, "balance": money(expected - paid),
                    "due": due.isoformat()}
-            if paid >= expected and expected:
+            if paid >= expected and expected and all(a["source"].startswith("OPEN_") for a in by_period[m]):
+                row.update(state="paid_before_records")
+            elif paid >= expected and expected:
                 paid_on = max(a["date"] for a in by_period[m])
                 row.update(state="paid_early" if paid_on < first_of(m) else "paid", paid_on=paid_on.isoformat())
                 if paid_on > due:
@@ -714,7 +716,7 @@ def cmd_lease(mem: Memory, args, today: date) -> dict:
                         "occurred_at": noon(start, args.tz), "summary": f"Rent {money(rent)} from {start}",
                         "attributes": {"monthly_rent": rent, "effective_from": noon(start, args.tz)},
                         "links": [{"predicate": "under_lease", "entity": key}]})
-    if not facts and not events_ and not args.name:
+    if not facts and not events_ and not args.name and not args.paid_through:
         raise ToolError("Nothing to change: give the terms to set.")
     name = args.name or (current or {}).get("name") or key.split(":", 1)[1]
     entity = {"key": key, "type": "lease", "name": name}
@@ -723,8 +725,47 @@ def cmd_lease(mem: Memory, args, today: date) -> dict:
     result = mem.write(args.by, args.source or f"Lease {name}", entities=[entity],
                        facts=[{**f, "valid_from": "now"} for f in facts], events=events_)
     lease = find_lease(load_leases(mem), key)
+    opening = paid_through(mem, lease, args, today) if args.paid_through else None
     return {"ok": True, "lease": lease_view(lease, rent_sets(mem).get(key, []), today),
-            "created": current is None, "warnings": result.get("warnings", [])}
+            "created": current is None, **({"paid_before_records": opening} if opening else {}),
+            "warnings": result.get("warnings", [])}
+
+
+def paid_through(mem: Memory, lease: dict, args, today: date) -> dict:
+    """Months before the imported statements, settled as the owner says: an opening balance, not bank payments.
+
+    They show as paid_before_records, count in no report and are never invoiced (they pay with no transaction).
+    """
+    last = parse_month(args.paid_through)
+    if not lease["start"] or last < month_of(lease["start"]):
+        raise ToolError(f"--paid-through {last} is before the start of the lease.")
+    if last > month_of(today):
+        raise ToolError("--paid-through can't be a future month: future rent is paid by deposits.")
+    book = Book(mem, today)
+    sets = book.sets.get(lease["key"], [])
+    paid = {}
+    for a in book.applied:
+        if a["lease"] == lease["key"]:
+            paid[a["period"]] = paid.get(a["period"], 0) + a["amount"]
+    source_key = f"OPEN_{lease['key'].split(':', 1)[1]}"
+    start = noon(lease["start"], args.tz)
+    events_ = [{"key": source_key, "type": "rent_opening", "occurred_at": start,
+                "summary": f"Rent settled before the records ({lease['name']})",
+                "attributes": {"reason_text": args.source or "Paid before the imported statements"},
+                "links": [{"predicate": "under_lease", "entity": lease["key"]}]}]
+    settled = []
+    for m in months(month_of(lease["start"]), last):
+        balance = (rent_on(sets, first_of(m)) or 0) - paid.get(m, 0)
+        if balance > 0:
+            settled.append(m)
+            events_.append({"key": f"RENT_{source_key}_{m.replace('-', '')}", "type": "rent_applied",
+                            "occurred_at": start, "summary": f"Rent for {m} settled before the records",
+                            "attributes": {"rent_period": m, "applied_amount": balance},
+                            "links": [{"predicate": "paid_with", "event": source_key},
+                                      {"predicate": "under_lease", "entity": lease["key"]}]})
+    if settled:
+        mem.write(args.by, args.source or f"Rent paid through {last}, before the imported statements", events=events_)
+    return {"through": last, "months": settled}
 
 
 def next_anniversary(lease: dict, today: date) -> date | None:
@@ -1299,10 +1340,10 @@ def cmd_report(mem: Memory, args, today: date) -> dict:
     works = load_works(mem)
     out = []
     for prop, name in props.items():
-        collected = sum(a["amount"] for a in book.applied
-                        if lease_property.get(a["lease"]) == prop and first <= a["date"] <= last)
-        for_year = sum(a["amount"] for a in book.applied
-                       if lease_property.get(a["lease"]) == prop and a["period"].startswith(f"{year}-"))
+        recorded = [a for a in book.applied if lease_property.get(a["lease"]) == prop
+                    and not a["source"].startswith("OPEN_")]  # an opening balance is not money that arrived
+        collected = sum(a["amount"] for a in recorded if first <= a["date"] <= last)
+        for_year = sum(a["amount"] for a in recorded if a["period"].startswith(f"{year}-"))
         bills = [d for d in recurring_done(mem) if items.get(d["item"], {}).get("property") == prop
                  and items[d["item"]]["payer"] == "owner" and d["amount"] and first <= d["date"] <= last]
         jobs = [w for w in works if w["property"] == prop and w["payer"] == "owner" and w["cost_cents"]
@@ -1370,6 +1411,7 @@ def main() -> None:
     s.add_argument("--match-types", help="transaction types of its payments, e.g. cash_deposit,spei_in")
     s.add_argument("--match-account", help="only payments to this account (ACC_…)")
     s.add_argument("--match-amount", help="only payments of exactly this amount")
+    s.add_argument("--paid-through", help="YYYY-MM: every month until this one was paid before the imported statements")
     cmd("leases", by=False, source=False)
     s = cmd("sync", source=False)
     s.add_argument("--dry-run", action="store_true")

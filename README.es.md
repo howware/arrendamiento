@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/howware/arrendamiento/actions/workflows/ci.yml"><img src="https://github.com/howware/arrendamiento/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/versión-0.1.0-blue" alt="Versión 0.1.0">
+  <img src="https://img.shields.io/badge/versión-0.1.1-blue" alt="Versión 0.1.1">
   <a href="https://howware.org/es/"><img src="https://img.shields.io/badge/howware-0.2-5a45d6" alt="howware 0.2"></a>
   <img src="https://img.shields.io/badge/python-3.9%2B-blue" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/licencia-Apache%202.0-green" alt="Apache 2.0">

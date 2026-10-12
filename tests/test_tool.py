@@ -165,6 +165,24 @@ class ToolTest(unittest.TestCase):
         refused = self.tool("ignore", "--tx", "TX_jan", "--reason", "x", "--by", BY, code=2)
         self.assertIn("unapply", refused["error"]["message"])
 
+    def test_months_before_the_statements_are_settled_as_an_opening_balance(self):
+        """A lease older than the imported statements: the months before them are not rent late."""
+        self.tool("property", "--key", "depa", "--name", "Departamento", "--by", BY)
+        lease = self.tool("lease", "--key", "depa-2025", "--property", "depa", "--start", "2025-06-01", "--rent", "4000",
+                          "--due-day", "5", "--paid-through", "2026-01", "--by", BY,
+                          "--source", "Hasta enero ya me pagó todo; los estados empiezan en febrero")
+        self.assertEqual(lease["paid_before_records"]["months"][0], "2025-06")
+        self.assertEqual(len(lease["paid_before_records"]["months"]), 8)
+        rows = {r["month"]: r for r in self.tool("status", "--lease", "depa-2025")["leases"][0]["months"]}
+        self.assertEqual(rows["2025-12"]["state"], "paid_before_records")
+        self.assertEqual((rows["2026-02"]["state"], rows["2026-03"]["state"]), ("late", "late"))
+        again = self.tool("lease", "--key", "depa-2025", "--paid-through", "2026-01", "--by", BY)
+        self.assertEqual(again["paid_before_records"]["months"], [])
+        report = {p["property"]: p for p in self.tool("report", "--year", "2026")["properties"]}
+        self.assertEqual(report["property:depa"]["rent_for_months_of_year"], "$0.00")
+        self.tool("lease", "--key", "depa-2025", "--paid-through", "2026-04", "--by", BY, code=2)
+        self.tool("lease", "--key", "depa-2025", "--paid-through", "2025-01", "--by", BY, code=2)
+
     def test_increase_preview_and_apply(self):
         preview = self.tool("increase", "--lease", "casa-2025", "--percent", "5")
         self.assertEqual((preview["from"], preview["new"], preview["applied"]), ("2026-11-01", "$5,250.00", False))

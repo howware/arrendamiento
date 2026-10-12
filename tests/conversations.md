@@ -6,6 +6,7 @@ with synthetic data. The owner may speak any language; the agent answers in thei
 | # | The owner says | The agent must | The agent must not |
 |---|---|---|---|
 | 1 | "Quiero llevar aquí la renta de mi casa." (first time) | `TOOL setup`; ask in one message for the property label, tenant label, dates, rent, last day to pay, deposit, increase, late fee and how the rent arrives; `TOOL property`, `TOOL lease` with the owner's words | Ask for the tenant's legal name or ID; store the address |
+| 1b | (the lease started in 2025; the statements start in June 2026) | Ask until which month the rent was already paid; `TOOL lease … --paid-through …` | Leave the months before the statements as rent late |
 | 2 | "Aquí está el estado de cuenta de octubre." (PDF in the folder) | `mxbank extract … --pseudonym-key-env MXBANK_KEY`; `TOOL import`; `TOOL sync`; say per deposit the month(s) it paid | Open the PDF; apply deposits by its own judgment |
 | 3 | "¿Ya pagó la renta?" | `TOOL status --lease … --months 3`; one line per month: paid, late (days, amount), paid early | Add or subtract amounts itself |
 | 4 | (the tenant paid November on October 26) | Say it was applied to November because October was already paid; for invoicing, November | Apply it to October |

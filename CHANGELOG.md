@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- `lease --paid-through YYYY-MM`: a lease older than the imported statements settles the months before them as an
+  opening balance. They show as `paid_before_records`, count in no report and are never invoiced; without it they
+  showed as rent late. The protocol asks for it when registering a lease (found in the first real conversation).
+
 ## 0.1.0 — first version
 
 - Protocol for a landlord without an app: register a property and its lease, check the rent against the bank

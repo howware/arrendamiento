@@ -77,11 +77,15 @@ Errors arrive as `{"ok": false, "error": {"code", "message"}}`.
 1. Ask, in one message: a label for the property (no address needed); the tenant's label; start and end dates
    (or open-ended); the rent; the last day to pay (e.g. the 7th); the security deposit; how the rent increases
    (a percent, the INPC, or not at all) and from when; whether there is a late fee; and **how the rent arrives**
-   (cash deposit at the branch, transfer; to which account). Never ask for the tenant's legal name or ID.
+   (cash deposit at the branch, transfer; to which account). If the lease started before the first imported
+   statement, ask **until which month the rent was already paid**: those months have no deposits to show for them.
+   Never ask for the tenant's legal name or ID.
 2. `TOOL property --key <k> --name "<label>" --by <owner>`.
 3. `TOOL lease --key <k> --property <p> --tenant "<label>" --start … [--end …] --rent … --due-day … [--deposit …]
    [--increase percent:5 | inpc | none] [--late-fee-amount … | --late-fee-percent …] --match-types cash_deposit,spei_in
-   [--match-account ACC_…] [--match-amount …] --by <owner> --source "<their words>"`. To find the account
+   [--match-account ACC_…] [--match-amount …] [--paid-through YYYY-MM] --by <owner> --source "<their words>"`.
+   `--paid-through` settles the months before the statements as an opening balance (they show as
+   `paid_before_records`, count in no report and are never invoiced); without it they would show as rent late. To find the account
    pseudonym, look at the deposits after importing a statement (`TOOL pending`, `MEM list`).
 4. If the deposit was received, record it: `TOOL deposit --lease <k> --tx <deposit> [--amount <part>]` (a single
    deposit may carry the deposit and the first month: give the deposit part with `--amount`).
