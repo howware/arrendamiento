@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.9", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Memory (long-term-memory-for-AI)
+        uses: actions/checkout@v4
+        with:
+          repository: howware/long-term-memory-for-AI
+          path: long-term-memory-for-AI
+      - name: Adapter mxbank (only to compare the copy of its common records)
+        uses: actions/checkout@v4
+        with:
+          repository: howware/mx-bank-statement-reader
+          path: mx-bank-statement-reader
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Private-data guard (every versioned file)
+        shell: bash
+        run: git ls-files -z | xargs -0 python tools/check_private_data.py
+      - name: Tests
+        shell: bash
+        env:
+          HOWWARE_MEMORY_HELPER: ${{ github.workspace }}/long-term-memory-for-AI/db/memory.py
+        run: python -m unittest discover -s tests -v
+      - name: The skill installs
+        shell: bash
+        run: python tools/install_skill.py --target "$RUNNER_TEMP/skills/$(python -c "import json;print(json.load(open('howware.json'))['name'])")"

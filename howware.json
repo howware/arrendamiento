@@ -1,0 +1,37 @@
+{
+  "howware": "0.2",
+  "name": "arrendamiento",
+  "version": "0.1.0",
+  "description": "Rentals without an app, for landlords: rent collected from the bank statements, services and property tax, maintenance and warranties, deposits and increases — everything pending in one list.",
+  "license": "Apache-2.0",
+  "languages": ["en", "es"],
+  "hosts": [],
+  "skill": "skill/arrendamiento",
+  "adapters": [
+    {"name": "project-memory", "version": ">=0.4.0", "url": "https://github.com/howware/long-term-memory-for-AI"},
+    {"name": "mxbank", "version": ">=0.2.0", "url": "https://github.com/howware/mx-bank-statement-reader"}
+  ],
+  "tools": [{"name": "arrendamiento.py", "network": false, "dependencies": []}],
+  "memory": {"kind": "local-sqlite", "append_only": true, "seed_version": "1"},
+  "privacy": {
+    "stays_local": [
+      "bank statements (PDF), leases, receipts and bills: the agent is told never to open them",
+      "names, account and card numbers in the statements (mxbank replaces them with pseudonyms before anything else sees them)",
+      "the memory file (the agent queries it and sees the answers)"
+    ],
+    "agent_sees": [
+      "deposits and charges: date, amount, type, anonymized bank description and account pseudonym",
+      "the owner's labels for properties and tenants, the lease terms, recurring items, repairs and their costs",
+      "the providers' contacts, only as the owner gives them",
+      "everything the owner types in the conversation"
+    ],
+    "cannot_guarantee": [
+      "automatic anonymization is not infallible",
+      "not opening documents is an instruction to the agent; host deny permissions reduce the risk but do not remove it",
+      "what the agent sees leaves the computer for the AI provider, under its terms",
+      "the memory file is not encrypted",
+      "the INPC is not looked up online: the owner gives its values",
+      "this is not legal or tax advice"
+    ]
+  }
+}

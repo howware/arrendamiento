@@ -1,0 +1,7 @@
+# The owner's real data never enters this repository
+.memory/
+data/
+*.pdf
+*.sqlite
+__pycache__/
+*.pyc
