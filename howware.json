@@ -1,11 +1,11 @@
 {
   "howware": "0.2",
   "name": "arrendamiento",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Rentals without an app, for landlords: rent collected from the bank statements, services and property tax, maintenance and warranties, deposits and increases — everything pending in one list.",
   "license": "Apache-2.0",
   "languages": ["en", "es"],
-  "hosts": [],
+  "hosts": ["claude-code"],
   "skill": "skill/arrendamiento",
   "adapters": [
     {"name": "project-memory", "version": ">=0.4.0", "url": "https://github.com/howware/long-term-memory-for-AI"},

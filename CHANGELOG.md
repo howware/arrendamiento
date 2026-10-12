@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- `howware.json` lists `claude-code` in `hosts`: used in a real conversation, with the owner's statements, on Claude
+  Code. Codex will be added once tested.
+
 ## 0.1.1
 
 - `lease --paid-through YYYY-MM`: a lease older than the imported statements settles the months before them as an

@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/howware/arrendamiento/actions/workflows/ci.yml"><img src="https://github.com/howware/arrendamiento/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/version-0.1.1-blue" alt="Version 0.1.1">
+  <img src="https://img.shields.io/badge/version-0.1.2-blue" alt="Version 0.1.2">
   <a href="https://howware.org"><img src="https://img.shields.io/badge/howware-0.2-5a45d6" alt="howware 0.2"></a>
   <img src="https://img.shields.io/badge/python-3.9%2B-blue" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="Apache 2.0">
@@ -96,7 +96,7 @@ Then open your agent in that folder and say: *"Quiero llevar aquí la renta de m
 - **The INPC is not looked up online:** you give its values (INEGI publishes them).
 - **No proration** of a first or last partial month in this version: rent is per whole month.
 - **No push notifications:** pending items appear when you open a conversation.
-- **Not yet tested in a real conversation** on any host; `howware.json` lists hosts only once tested.
+- **Tested in a real conversation on Claude Code only**; Codex will be listed in `howware.json` once tested.
 
 ## Development
 

@@ -53,7 +53,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mxbank_records  # noqa: E402  (verbatim copy from mxbank: the common form of a statement in the memory)
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 HERE = Path(__file__).resolve().parent
 SEED = HERE / "seed.json"
 MIN_MEMORY = (0, 4, 0)

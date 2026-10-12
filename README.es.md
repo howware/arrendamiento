@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/howware/arrendamiento/actions/workflows/ci.yml"><img src="https://github.com/howware/arrendamiento/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/versión-0.1.1-blue" alt="Versión 0.1.1">
+  <img src="https://img.shields.io/badge/versión-0.1.2-blue" alt="Versión 0.1.2">
   <a href="https://howware.org/es/"><img src="https://img.shields.io/badge/howware-0.2-5a45d6" alt="howware 0.2"></a>
   <img src="https://img.shields.io/badge/python-3.9%2B-blue" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/licencia-Apache%202.0-green" alt="Apache 2.0">
@@ -97,8 +97,7 @@ Luego abre tu agente en esa carpeta y di: *«Quiero llevar aquí la renta de mi 
 - **El INPC no se consulta en línea:** tú das sus valores (los publica el INEGI).
 - **No prorratea** un primer o último mes incompleto en esta versión: la renta es por mes completo.
 - **Sin notificaciones:** los pendientes aparecen cuando abres una conversación.
-- **Aún no se ha probado en una conversación real** en ningún anfitrión; `howware.json` lista anfitriones solo
-  cuando se prueban.
+- **Probado en una conversación real solo en Claude Code**; Codex se agregará a `howware.json` cuando se pruebe.
 
 ## Desarrollo
 
